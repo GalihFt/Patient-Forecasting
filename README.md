@@ -30,24 +30,18 @@ This project focuses on analyzing inpatient admissions using time series methods
 * **Autocorrelation Function (ACF) and Partial Autocorrelation Function (PACF)** plots are analyzed to determine stationarity in the mean.
 * **Seasonal differencing** is applied to make the data stationary.
 
-### 5. Time Series Modeling (SARIMA)
-* Three SARIMA models are trained:
-  * **SARIMA(0,0,2)(0,1,1)7**
-  * **SARIMA(0,0,2)(1,1,1)7**
-  * **SARIMA(0,0,[2])(0,1,1)7**
-
-### 6. Model Diagnostics
+### 5. Model Diagnostics
 * **Conditional Least Squares (CLS)** method is used for parameter estimation.
 * **Ljung-Box test** is performed to assess residual randomness.
 * **Lilliefors test** is used to check residual normality.
 
-### 7. Model Evaluation
+### 6. Model Evaluation
 * The best model is selected based on:
   * **Root Mean Square Error (RMSE)**
   * **Mean Absolute Percentage Error (MAPE)**
 * The evaluation is conducted on **test data from December 11, 2023, to January 7, 2024**.
 
-### 8. Forecasting
+### 7. Forecasting
 * Forecasts are generated using the best SARIMA model.
 * The forecasted values are plotted against actual values.
 * Confidence intervals are included in the visualization to measure uncertainty.
