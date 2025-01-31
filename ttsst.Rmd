@@ -1,0 +1,121 @@
+---
+title: "SARIMA Forecasting Analysis"
+author: "Your Name"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load Libraries
+```{r}
+library(stats)
+library(tidyverse)
+library(tseries)
+library(forecast)
+library(dplyr)
+library(readxl)
+library(MASS)
+library(lmtest)
+library(nortest)
+```
+
+## Load Data
+```{r}
+data <- read_excel("data_time_series_fixed_fixed.xlsx", col_types = c("date", "numeric", "text"))
+data_fix <- ts(data$Value, frequency = 7, start = c(1, 1))
+```
+
+## Summary Statistics
+```{r}
+summary_stats <- data %>%
+  summarize(
+    Mean = mean(Value, na.rm = TRUE),
+    Median = median(Value, na.rm = TRUE),
+    Min = min(Value, na.rm = TRUE),
+    Max = max(Value, na.rm = TRUE)
+  )
+print(summary_stats)
+```
+
+## Grouped Summary
+```{r}
+summary_stats <- data %>%
+  group_by(Hari) %>%
+  summarize(
+    Mean = mean(Value, na.rm = TRUE)
+  ) %>%
+  arrange(factor(Hari, levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")))
+print(summary_stats)
+```
+
+## Time Series Plot
+```{r}
+ggplot(data, aes(x = Tanggal, y = Value)) +
+  geom_line() +
+  labs(title = "Time Series Plot", x = "Date", y = "Value") +
+  theme_minimal()
+```
+
+## Box-Cox Transformation
+```{r}
+lambda <- BoxCox.lambda(data_fix)
+data_fix_transformed <- BoxCox(data_fix, lambda)
+BoxCox.lambda(data_fix_transformed)
+```
+
+## ACF and PACF Plots
+```{r}
+acf(data_fix_transformed, main = "Plot ACF: Data Non-Differencing")
+pacf(data_fix_transformed, main = "Plot PACF: Data Non-Differencing")
+```
+
+## Differencing for Stationarity
+```{r}
+data_diff_fix <- diff(data_fix_transformed, lag = 7, differences = 1)
+acf(data_diff_fix, main = "Plot ACF: Data Differencing")
+pacf(data_diff_fix, main = "Plot PACF: Data Differencing")
+```
+
+## SARIMA Models
+```{r}
+modelSARIMA1 <- Arima(data_fix_transformed, order = c(0,0,2), seasonal = list(order = c(0,1,1), period = 7))
+coeftest(modelSARIMA1)
+
+modelSARIMA2 <- Arima(data_fix_transformed, order = c(0,0,2), seasonal = list(order = c(1,1,1), period = 7))
+coeftest(modelSARIMA2)
+
+modelSARIMA3 <- Arima(data_fix_transformed, order = c(0,0,7), seasonal = list(order = c(0,1,1), period = 7), fixed = c(0, NA, rep(0, 4), 0, NA))
+coeftest(modelSARIMA3)
+```
+
+## Forecasting
+```{r}
+forecasts <- forecast(modelSARIMA1, h = 7)
+forecast_values_original_scale <- InvBoxCox(forecasts$mean, lambda)
+print(forecast_values_original_scale)
+```
+
+## Model Diagnostics
+```{r}
+lags <- c(7,14,21,28,35)
+diagnostic_tests <- function(model, lags) {
+  ljung_box_results <- lapply(lags, function(lag) {
+    test <- Box.test(model$residuals, type = "Ljung-Box", lag = lag)
+    data.frame(Lag = lag, Statistic = test$statistic, p_value = test$p.value)
+  })
+  
+  lillie_test <- lillie.test(model$residuals)
+  coef_test <- coeftest(model)
+  ljung_box_df <- do.call(rbind, ljung_box_results)
+  lillie_test_df <- data.frame(Test = "Lilliefors", Statistic = lillie_test$statistic, p_value = lillie_test$p.value)
+  
+  list(Coefficient_Test = coef_test, Ljung_Box = ljung_box_df, Lilliefors = lillie_test_df)
+}
+
+result <- diagnostic_tests(modelSARIMA1, lags)
+print(result)
+```
+
