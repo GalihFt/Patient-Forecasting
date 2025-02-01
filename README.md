@@ -61,11 +61,11 @@ The following table summarizes the model evaluation results:
 
 | Model          | RMSE  | MAPE  |
 |--------------|------|------|
-| SARIMA(0,0,2)(0,1,1)7 | Smallest error | Best model |
-| SARIMA(0,0,2)(1,1,1)7 | Slightly higher error | |
+| SARIMA(0,0,2)(0,1,1)7 | 28.57020 | 22.19397 |
+| SARIMA(0,0,2)(1,1,1)7 | 28.99893 | 22.02917 |
 | SARIMA(0,0,[2])(0,1,1)7 | Does not satisfy white noise assumption | |
 
-Based on the results, **SARIMA(0,0,2)(0,1,1)7 was the best-performing model**, as it had the smallest forecasting error with MAPE in the data test 22%. The model effectively captures the seasonal pattern observed in inpatient admissions. The forecasting plot demonstrates that the predicted values align closely with actual values, and the confidence interval encompasses the majority of actual values, indicating a reliable uncertainty estimation.
+Based on the results, **SARIMA(0,0,2)(0,1,1)7 was the best-performing model**, as it had the smallest forecasting error with RMSE in the data test 28.57020 and MAPE 22%. The model effectively captures the seasonal pattern observed in inpatient admissions. The forecasting plot demonstrates that the predicted values align closely with actual values, and the confidence interval encompasses the majority of actual values, indicating a reliable uncertainty estimation.
 
 This study highlights the importance of **time series modeling in healthcare forecasting** and provides insights into **seasonal trends in inpatient admissions**. **Future improvements will focus on enhancing model performance, testing alternative forecasting techniques, and incorporating external factors such as hospital policies and public health trends.**
 
